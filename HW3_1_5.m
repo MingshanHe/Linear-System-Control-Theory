@@ -3,7 +3,7 @@ A = [0.8 0.2; -0.3 0.9];  % State matrix
 C = [1 0; 0 1];           % Measurement matrix
 
 % Initial conditions
-x0 = [0.5; -0.5];  % Initial state estimate
+x0 = [1.5; -1.5];  % Initial state estimate
 
 % Generate input and measurement data
 T = 100;   % Number of time steps
@@ -13,6 +13,7 @@ x_true = zeros(2, T);  % True state
 x_estimate = zeros(2, T);  % Estimated state
 
 % Initialize the state estimate
+x_true(:,1) = [1.0; 1.0];
 x_estimate(:, 1) = x0;
 
 % Open-loop observer loop
