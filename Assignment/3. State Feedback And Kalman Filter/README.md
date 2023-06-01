@@ -279,4 +279,131 @@ $$
 \bar{B}=\left.{\begin{bmatrix}0\\H^{-1}B\end{bmatrix}}\right|_{x=\bar{x},u=\bar{u}}
 $$
 
-#### 	Design a LQR controller to stabilize the system around the fixed point, and show your result using MATLAB from the initial condition $q=\begin{bmatrix}0& 0.01\end{bmatrix}^T$, $\dot{q}=\begin{bmatrix}0& 0\end{bmatrix}^T$ with $Q=I$, $R=1$.
+#### 	(1) Design a LQR controller to stabilize the system around the fixed point
+
+​	Before design the LQR controller, I would like to describe some derivation of this inverted pendulum dynamics equations. Using the Lagrangian Method, $l = T - V$ where $T$ is the kinematic energy and $V$ is the potential energy of the system. 
+
+> $T = T_c+T_p$ where the first term is the kinematic energy of the cart and the second term is that of the pole.
+
+​	As the Cartesian coordinate of the cart and pole that can be written as $\begin{bmatrix}x\\0\end{bmatrix}$ and $\begin{bmatrix}x+ L*sin(\theta)\\L*cos(\theta)\end{bmatrix}$, the kinematic energy can be written as: $T_c = \frac{1}{2}M\dot{x}^2$ and $T_p = \frac{1}{2}m[\dot{(x+L*sin(\theta))}^2+\dot{(L*cos(\theta))}^2]$.
+
+​	The potential energy is $V=mgLcos(\theta)$, Thus the total energy is,
+$$
+l=T-V = \frac{1}{2}M\dot{x}^2+ \frac{1}{2}m[\dot{(x+L*sin(\theta))}^2+\dot{(L*cos(\theta))}^2]-mgLcos(\theta)
+$$
+​	The generalized coordinates are selected as $\Omega = \begin{bmatrix}x\\\theta\end{bmatrix} $, so the Lagrangian equations are:
+$$
+\frac{d}{dt}\frac{\partial l}{\partial \dot{x}} -\frac{\partial l}{\partial x} = f\\
+\frac{d}{dt}\frac{\partial l}{\partial \dot{\theta}} -\frac{\partial l}{\partial \theta} = 0
+$$
+​	This yields,
+$$
+(M+m)\ddot{x}+mL\ddot{\theta}cos(\theta)-mL\dot{\theta}^2sin(\theta)=f\\
+mL\ddot{x}cos(\theta)+mL^2\ddot{\theta}-mgLsin(\theta)=0
+$$
+​	Then define the system state with $X = \begin{bmatrix}x\\\dot{x}\\\theta\\\dot{\theta}\end{bmatrix}$,  and from the above equation,
+$$
+\dot{X} =\begin{bmatrix}\dot{x}\\\ddot{x}\\\dot{\theta}\\\ddot{\theta}\end{bmatrix} =
+\begin{bmatrix}\dot{x}\\
+\frac{f+msin(\theta)(L\dot{\theta}^2-gcos(\theta))}{M+msin^2{\theta}}\\
+\dot{\theta}\\
+\frac{-fcos(\theta)-mL\dot{\theta}^2sin(\theta)cos(\theta)+(M+m)gsin(\theta)}{L(M+msin^2(\theta))}
+\end{bmatrix}
+$$
+​	And the system equation need to be linearized at upward position, the equilibrium is $X = \begin{bmatrix}x\\\dot{x}\\\theta\\\dot{\theta}\end{bmatrix} \approx \begin{bmatrix}0\\0\\0\\0\end{bmatrix}$
+
+​	I consider the external force as the input $u$ of the system, and the system can be linearized by ignoring the high order terms. Thus the linearized system is,
+$$
+\dot{X} =\begin{bmatrix}\dot{x}\\\ddot{x}\\\dot{\theta}\\\ddot{\theta}\end{bmatrix} =
+\begin{bmatrix}\dot{x}\\
+\frac{f+msin(\theta)(L\dot{\theta}^2-gcos(\theta))}{M+msin^2{\theta}}\\
+\dot{\theta}\\
+\frac{-fcos(\theta)-mL\dot{\theta}^2sin(\theta)cos(\theta)+(M+m)gsin(\theta)}{L(M+msin^2(\theta))}
+\end{bmatrix}=
+\begin{bmatrix}
+\dot{x}\\
+\frac{f-m\theta g}{M}\\
+\dot{\theta}\\
+\frac{-f+(M+m)g\theta}{LM}
+\end{bmatrix} =
+\begin{bmatrix}
+0 & 1 & 0 & 0\\
+0 & 0 & -\frac{mg}{M} & 0\\
+0 & 0 & 0 & 1\\
+0 & 0 & \frac{(M+m)g}{LM} & 0
+\end{bmatrix}
+\begin{bmatrix}x\\\dot{x}\\\theta\\\dot{\theta}\end{bmatrix}
+ +
+ \begin{bmatrix}0\\\frac{1}{M}\\0\\-\frac{1}{LM}\end{bmatrix}f \\
+ y = 
+  \begin{bmatrix}x\\\theta\end{bmatrix} = 
+   \begin{bmatrix}1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0\end{bmatrix} 
+   \begin{bmatrix}x\\\dot{x}\\\theta\\\dot{\theta}\end{bmatrix}
+$$
+​	To design the Linear Quadratic Regulator, it utilizes a cost function: $J = \int^{\infty}_{0}(x^TQx+u^TRu)dt$, and to find the optimal control low which means that using feedback gain $K$ can minimize the cost function. In my situation, I choose the matrix $Q$ with identity matrix and $R$ is 1.
+
+#### (2) Show your result using MATLAB from the initial condition $q=\begin{bmatrix}0& 0.01\end{bmatrix}^T$, $\dot{q}=\begin{bmatrix}0& 0\end{bmatrix}^T$ with $Q=I$, $R=1$.
+
+​	Start with system dynamic equation,
+
+```matlab
+%% Parameter Definition
+mc = 1;
+mp = 1;
+l = 1;
+g = 10;
+%% System Dynamics Equation
+A = [0 0 1 0; 0 0 0 1; 0 -mp*g/mc 0 0; 0 -(mc+mp)*g/(l*mc) 0 0];
+B = [0; 0; 1/mc; 1/(l*mc)];
+C = [1 0 0 0; 0 1 0 0];
+D = 0;
+
+```
+
+​	Then compute state feedback gain $K$ using `lqr` function,
+
+```matlab
+Q = diag([1,1,1,1]);
+R = 1;
+K = lqr(A, B, Q, R);
+% Define the initial conditions
+x0 = [0; 0.01; 0; 0];   % Initial state
+u = 0;                  % Initial Input
+```
+
+​	Then we can construct the response and plot it.
+
+```matlab
+% Simulate the system and observer dynamics
+t = 0:dt:t_end;
+x = zeros(4, length(t));
+y = zeros(2, length(t));
+
+x(:, 1) = x0;
+y(:, 1) = C*x0; 
+
+
+for i = 2:length(t)
+    u = -K * x(:, i-1);
+    x(:, i) = x(:, i-1) + dt * (A*x(:, i-1) + B*u);
+    y(:, i) = C*x(:, i);
+end
+
+plot_ = true;
+if plot_
+    figure;
+    % subplot(2, 1, 1);
+    % plot(t, x(1, :), 'b', t, x(2,:), 'r');
+    % ylabel('State');
+    % legend('True State: x', 'True Output: theta');
+
+    % subplot(2, 1, 2);
+    plot(t, y(1,:), 'b', t, y(2,:), 'r');
+    xlabel('Time');
+    ylabel('Output');
+    legend('True Output: x', 'True Output: theta');
+end
+```
+
+<img src="Figure\8.png" style="zoom:100%;" />
+

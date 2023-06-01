@@ -29,8 +29,8 @@ Q = diag([1,1,1,1]);
 R = 1;
 K = lqr(A, B, Q, R);
 % Define the initial conditions
-x0 = [0; 0.01; 0; 0];        % Initial state
-u = 0;                  % Input
+x0 = [0; 0.01; 0; 0];   % Initial state
+u = 0;                  % Initial Input
 
 % Define the simulation parameters
 dt = 0.01;              % Time step
@@ -48,20 +48,20 @@ y(:, 1) = C*x0;
 for i = 2:length(t)
     u = -K * x(:, i-1);
     x(:, i) = x(:, i-1) + dt * (A*x(:, i-1) + B*u);
-    y = C*x(:, i);
+    y(:, i) = C*x(:, i);
 end
 
 plot_ = true;
 if plot_
     figure;
-    subplot(2, 1, 1);
-    plot(t, x(1, :), 'b', t, y(1, :), 'r--');
-    ylabel('State 1');
-    legend('True State', 'Estimated State');
-    
-    subplot(2, 1, 2);
-    plot(t, x(2, :), 'b', t, y(2, :), 'r--');
+    % subplot(2, 1, 1);
+    % plot(t, x(1, :), 'b', t, x(2,:), 'r');
+    % ylabel('State');
+    % legend('True State: x', 'True Output: theta');
+
+    % subplot(2, 1, 2);
+    plot(t, y(1,:), 'b', t, y(2,:), 'r');
     xlabel('Time');
-    ylabel('State 2');
-    legend('True State', 'Estimated State');
+    ylabel('Output');
+    legend('True Output: x', 'True Output: theta');
 end
