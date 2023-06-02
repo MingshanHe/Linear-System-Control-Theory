@@ -3,25 +3,22 @@ A = [0 1 0; 0 0 1; 1 0 0];
 B = [0.3; 0; -0.3];
 C = [1.9 1.3 1];
 D = 0;
-
 % Define the initial conditions
-x0 = [0; 0; 0];        % Initial state
+x0 = [0; 0; 0];         % Initial state
 u = 0;                  % Input
 
 % Define the simulation parameters
-dt = 1;
+dt = 1;                  % 1：Discrete Time
 t_end = 200;             % Simulation end time
 
 % Simulate the system and observer dynamics
 t = 0:dt:t_end;
 x = zeros(3, length(t));
 y = zeros(1, length(t));
-
 x_true = zeros(3, length(t));
 y_true = zeros(1, length(t));
-
 x_estimate = zeros(3, length(t));
-y_hat = zeros(1, length(t));
+y_estimate = zeros(1, length(t));
 % Parameters
 meanValue = 0;  % Mean value
 stdDeviation = 0.7;  % Standard deviation
