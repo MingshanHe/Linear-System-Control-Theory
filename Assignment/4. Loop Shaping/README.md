@@ -82,3 +82,39 @@ $$
 C(s) = \frac{B(s)}{A(s)\phi(s)}=\frac{10s^3+14s^2+46s+25}{s^3+4s}
 $$
 <img src="Figure\3.PNG" style="zoom:50%;" />
+
+#### 3. Given the plant transfer function $P(s)$, implement the model $H_0$:
+
+$$
+P(s) = \frac{s^2-1}{s^3+2s^2+3s+4}, \space H_0(s) = \frac{(s-1)(2s+1)}{(s+2)^2(s^2+2s+2)}
+$$
+
+#### by designing a feedforward pre-compensator $C_1(s)$ and a feedback controller $C_2(s)$. Determine if the resulting system is stable and check desired model matching is achieved by using MATLAB.
+
+<img src="Figure\4.PNG" style="zoom:70%;" />
+
+​	$H_0(s)$ is implementable:
+$$
+\frac{H_0}{N_P}=\frac{2s+1}{(s+1)(s+2)^2(s^2+2s+2)}=\frac{\bar{E}}{\bar{F}}
+$$
+​	Then we need to find $M_c$ and $N_2$ that satisfy:
+$$
+M_pM_c+N_pN_2=\bar{F}
+$$
+​	Using `solve` function in MATLAB, we can solve this equation with,
+
+```matlab
+syms a1 a2 b1 b2 b3
+eqn1 = 2+a1+b1 == 7;
+eqn2 = 3+2*a1+a2+b2 == 20;
+eqn3 = 3*a1+2*a2+4-b1+b3==30;
+eqn4 = 4*a1+3*a2-b2 == 24;
+eqn5 = 4*a2-b3 == 8;
+sol = solve(eqn1,eqn2, eqn3,eqn4, eqn5,a1,a2, b1, b2,b3);
+```
+
+​	Then, $a_1 = 4.5$, $a_2 = 3.5$, $b_1 = 0.5$, $b_2 = 4.5$, $b_3 = 6$.
+
+​	
+
+<img src="Figure\5.PNG" style="zoom:50%;" />
