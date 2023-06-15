@@ -118,3 +118,78 @@ sol = solve(eqn1,eqn2, eqn3,eqn4, eqn5,a1,a2, b1, b2,b3);
 ​	
 
 <img src="Figure\5.PNG" style="zoom:50%;" />
+
+
+
+#### 4. Consider the pitch rate control of aircraft $P(s)$ where reference $r$ is pitch rate command, and output $y$ is pitch rate of the aircraft, $P_b(s)$ is bending mode is considered model:
+
+$$
+P(s) = \frac{s+1}{s^2+7s+25}\\
+P_b(s) = P(s)\frac{s^2+3s+30^2}{s^2+0.9s+45^2}
+$$
+
+##### (a)	Consider a controller $C(s)$ obtained using the loop transfer function $L(s) = \omega_c/s$ without considering bending. Use the maximum value of $\omega_c$ that satisfies $\vert L_b(j\omega)\vert < 0.5$ for all $\omega \geq 45$. Plot the loop shape $\vert L_b(j\omega)\vert$ considering bending using MATLAB when using this controller.
+
+​	I plotted three systems:
+
+		1. without lead-lag compensator and just original $P(s)$
+		1. with lead-lag compensator and just original $P(s)$
+		1. with lead-lag compensator and considered model $P_b(s)$
+
+​	And I also plotted the Bode figure in the MATLAB. I tried to design the parameter $w_c$ which is desired the condition in this question.
+
+```matlab
+clear
+clc
+close all
+s = tf('s');
+P = (s+1)/(s^2+7*s+25);
+Pb = P * (s^2+3*s+900)/(s^2+0.9*s+2025);
+%% Lead-lag controller
+wc = 0.5;
+F = wc/s;
+%% plot
+figure(1)
+margin(P)
+hold on
+margin(P*F)
+hold on
+margin(Pb*F)
+legend('w/o lead-lag controller','w lead-lag controller','w lead-lag controller w bending mode');
+hold off
+
+figure(2)
+stepplot(feedback(P,1))
+stepinfo(feedback(P,1))
+hold on
+stepplot(feedback(P*F,1))
+stepinfo(feedback(P*F,1))
+hold on
+stepplot(feedback(Pb*F,1))
+stepinfo(feedback(Pb*F,1))
+legend('w/o lead-lag controller','w lead-lag controller','w lead-lag controller w bending mode');
+```
+
+<img src="Figure\6.png" style="zoom:150%;" />
+
+<img src="Figure\7.png" style="zoom:150%;" />
+
+##### (b) Design a proper controller $C_b(s)$ to achieve a loop shape with the following properties: a) The loop shape should have a similar value to the original loop shape $\omega/c$ at low frequencies, and b) The loop shape should satisfy $\vert L_b(j\omega)\vert<0.5$ for all $\omega \geq 45$. Find the cut off frequency $\omega_c$ for controller $C_b$ and compare the loop shape obtained in  Problem (4a) using MATLAB.
+
+​	I am so sorry for this question. I have no idea.
+
+
+
+
+
+
+
+​																																																									<img src="C:/Users/BRL/Documents/GitHub/Control-System-1/Assignment/3. State Feedback And Kalman Filter/LOGO/signature.png" style="zoom:120%;" />
+
+​																																																										淡泊名利，矢志不渝；
+
+​																																																										上下求索，苦心孤诣；
+
+​																																																										百折不挠，夜以继日；
+
+​																																																										宁静致远，知行合一；
